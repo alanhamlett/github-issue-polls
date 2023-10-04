@@ -1,0 +1,64 @@
+{% extends "common/base_without_sidebar.html" %}
+{% block subtitle %}GitHub Poll{% endblock %}
+{% block meta_description %}Create a poll to embed in GitHub issues.{% endblock %}
+{% block og_title %}GitHub Poll - WakaTime{% endblock %}
+{% block og_description %}Create a poll to embed in GitHub issues.{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+
+        <div class="row m-top-xs-60 m-bottom-xs-60">
+          <div class="col-xs-12">
+            <form method="POST">
+              <input type="hidden" name="csrftoken" value="{{ csrf_token() }}" />
+              {% for choice in poll.choices %}
+                <div class="radio m-top-xs-20 m-bottom-xs-20">
+                  <label>
+                    <input type="radio" name="choice" id="choice{{ loop.index0 }}" value="{{ choice }}">
+                    {{ choice }}
+                  </label>
+                  {% if poll.current_user_voted_for(choice) %}
+                    <a href="#" class="unvote small m-left-xs-10" data-choice="{{ choice }}">[unvote]</a>
+                  {% endif %}
+                </div>
+              {% endfor %}
+              <div class="m-top-xs-60">
+                <button class="btn btn-cta btn-raised m-top-xs-10" type="submit">Vote</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="row m-top-xs-140 m-bottom-xs-60">
+          <div class="col-xs-12">
+
+            <div class="panel-group" role="tablist">
+              <div class="panel panel-default small">
+                <div class="panel-heading" role="tab" id="collapseListGroupHeading1">
+                  <span class="panel-title text-muted small"><a href="#collapseListGroup1" class="collapsed small" role="button" data-toggle="collapse" aria-expanded="false" aria-controls="collapseListGroup1">Show vote history <i class="fa fa-chevron-down"></i></a></span>
+                </div>
+                <div class="panel-collapse collapse" role="tabpanel" id="collapseListGroup1" aria-labelledby="collapseListGroupHeading1" aria-expanded="false" style="height: 0px;">
+                  <ul class="list-group text-muted small">
+                    {% for vote in poll.votes_history %}
+                      <li class="list-group-item"><a href="{{ vote.github_username_url }}" target="_blank" rel="nofollow noopener">@{{ vote.github_username }}</a> voted for <b>{{ vote.choice | shorten }}</b> <span title="{{ vote.created_at | datetime }}">{{ vote.created_at | naturaltime }}</span></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block javascript %}
+  {% compress 'js' %}
+    <script src="{{ STATIC_URL }}js/polls/vote.js"></script>
+  {% endcompress %}
+{% endblock %}
